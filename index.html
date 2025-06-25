@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller de Mezcla de Pigmentos</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter for font-sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- React CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <!-- ReactDOM CDN -->
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel for JSX transformation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        /* Custom font-family for Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Specific Tailwind color definitions for dynamic classes */
+        .bg-red-500 { background-color: #ef4444; }
+        .bg-blue-500 { background-color: #3b82f6; }
+        .bg-yellow-500 { background-color: #facc15; }
+        .bg-purple { background-color: #8B008B; } /* Custom color for purple */
+        .bg-orange { background-color: #FFA500; } /* Custom color for orange */
+        .bg-green { background-color: #008000; } /* Custom color for green */
+        .bg-gray { background-color: #808080; } /* Custom color for gray */
+        .text-red-600 { color: #dc2626; }
+        .text-green-600 { color: #16a34a; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Main App component
+        const App = () => {
+            // State variables
+            const [color1, setColor1] = useState(null); // First selected color
+            const [color2, setColor2] = useState(null); // Second selected color
+            const [mixedColor, setMixedColor] = useState(null); // Resulting mixed color (e.g., 'purple', 'orange', 'green')
+            const [guess, setGuess] = useState(''); // User's guess for the mixed color name
+            const [feedback, setFeedback] = useState(''); // Feedback for the user's guess
+
+            // Function to handle color selection
+            const handleColorSelect = (color) => {
+                if (!color1) {
+                    setColor1(color);
+                } else if (!color2) {
+                    setColor2(color);
+                }
+            };
+
+            // Function to mix the selected colors
+            const mixColors = () => {
+                if (!color1 || !color2) {
+                    setFeedback('Por favor, selecciona dos colores para mezclar.');
+                    return;
+                }
+
+                // Logic to mix primary colors
+                let result = '';
+                if ((color1 === 'red' && color2 === 'blue') || (color1 === 'blue' && color2 === 'red')) {
+                    result = 'purple';
+                } else if ((color1 === 'red' && color2 === 'yellow') || (color1 === 'yellow' && color2 === 'red')) {
+                    result = 'orange';
+                } else if ((color1 === 'blue' && color2 === 'yellow') || (color1 === 'yellow' && color2 === 'blue')) {
+                    result = 'green';
+                } else if (color1 === color2) {
+                    result = color1; // Mixing same colors results in the same color
+                } else {
+                    // This case should ideally not be reached with only primary colors,
+                    // but it's a fallback for unexpected combinations or if more colors were added.
+                    result = 'gray';
+                }
+                setMixedColor(result);
+                setFeedback(''); // Clear previous feedback
+            };
+
+            // Function to check the user's guess
+            const checkGuess = () => {
+                if (!mixedColor) {
+                    setFeedback('Mezcla los colores primero para adivinar.');
+                    return;
+                }
+
+                // Compare guess with the mixed color name (case-insensitive)
+                if (guess.toLowerCase() === mixedColor) {
+                    setFeedback('¡Correcto! ¡Felicidades!');
+                } else {
+                    setFeedback(`Incorrecto. El color es ${mixedColor}.`);
+                }
+            };
+
+            // Function to reset the app to its initial state
+            const resetApp = () => {
+                setColor1(null);
+                setColor2(null);
+                setMixedColor(null);
+                setGuess('');
+                setFeedback('');
+            };
+
+            // Helper function to get Tailwind background class based on color state
+            // Note: Tailwind dynamically generates classes, so for custom colors like 'purple',
+            // 'orange', 'green', 'gray' that are not default Tailwind colors,
+            // we need to define them in the <style> tag or use inline style.
+            const getColorBgClass = (color) => {
+                switch (color) {
+                    case 'red': return 'bg-red-500';
+                    case 'blue': return 'bg-blue-500';
+                    case 'yellow': return 'bg-yellow-500';
+                    case 'purple': return 'bg-purple';
+                    case 'orange': return 'bg-orange';
+                    case 'green': return 'bg-green';
+                    case 'gray': return 'bg-gray';
+                    default: return 'border-gray-300';
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
+                    {/* Header Section */}
+                    <header className="w-full max-w-2xl bg-white p-6 rounded-lg shadow-md text-center mb-6">
+                        <h1 className="text-3xl font-bold text-gray-800 mb-2">Actividad Integradora Guiada</h1>
+                        <h2 className="text-xl text-gray-600 mb-4">Taller de Mezcla de Pigmentos: ¡Descubre el Color!</h2>
+                        <p className="text-gray-700 leading-relaxed">
+                            Instrucciones: Selecciona dos colores primarios de la paleta. Después de mezclar, te desafiaremos a nombrar el color resultante. ¡Explora y experimenta con la combinación de pigmentos!
+                        </p>
+                    </header>
+
+                    {/* Select Your Pigments Section */}
+                    <section className="w-full max-w-2xl bg-white p-6 rounded-lg shadow-md mb-6">
+                        <h3 className="text-2xl font-semibold text-gray-700 mb-4 text-center">Selecciona tus Pigmentos</h3>
+                        <div className="flex justify-center items-center space-x-6 mb-8">
+                            {/* Color selection circles */}
+                            <div
+                                className="w-20 h-20 rounded-full bg-red-500 cursor-pointer shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105"
+                                onClick={() => handleColorSelect('red')}
+                            ></div>
+                            <div
+                                className="w-20 h-20 rounded-full bg-blue-500 cursor-pointer shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105"
+                                onClick={() => handleColorSelect('blue')}
+                            ></div>
+                            <div
+                                className="w-20 h-20 rounded-full bg-yellow-500 cursor-pointer shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:scale-105"
+                                onClick={() => handleColorSelect('yellow')}
+                            ></div>
+                        </div>
+                        <div className="flex justify-center space-x-4 mb-8">
+                            {/* Display selected colors */}
+                            <div className={`w-32 h-16 rounded-md flex items-center justify-center border-2 ${getColorBgClass(color1)}`}>
+                                <span className="text-white text-lg font-medium">{color1 ? '' : '1er Color'}</span>
+                            </div>
+                            <div className={`w-32 h-16 rounded-md flex items-center justify-center border-2 ${getColorBgClass(color2)}`}>
+                                <span className="text-white text-lg font-medium">{color2 ? '' : '2do Color'}</span>
+                            </div>
+                        </div>
+                        <div className="text-center">
+                            <button
+                                onClick={mixColors}
+                                className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-75"
+                            >
+                                ¡Mezclar Colores!
+                            </button>
+                        </div>
+                    </section>
+
+                    {/* Resulting Color Section */}
+                    <section className="w-full max-w-2xl bg-white p-6 rounded-lg shadow-md">
+                        <h3 className="text-2xl font-semibold text-gray-700 mb-4 text-center">Color Resultante</h3>
+                        <div className="flex justify-center mb-6">
+                            {/* Display mixed color using inline style for custom colors, or Tailwind class */}
+                            <div
+                                className="w-48 h-48 rounded-lg border-4 border-gray-300 flex items-center justify-center"
+                                style={{ backgroundColor: mixedColor ? (mixedColor === 'red' || mixedColor === 'blue' || mixedColor === 'yellow' ? '' : mixedColor) : 'transparent' }}
+                            >
+                                {/* If mixedColor is a primary Tailwind color, use the class, otherwise rely on inline style */}
+                                {mixedColor && (mixedColor === 'red' || mixedColor === 'blue' || mixedColor === 'yellow') && (
+                                    <div className={`${getColorBgClass(mixedColor)} w-full h-full rounded-lg`}></div>
+                                )}
+                                {!mixedColor && <span className="text-gray-500 text-lg">Mezcla los colores para ver el resultado.</span>}
+                            </div>
+                        </div>
+                        {mixedColor && (
+                            <div className="text-center mb-6">
+                                <p className="text-lg text-gray-700 mb-2">¿Cómo se llama este color?</p>
+                                <input
+                                    type="text"
+                                    className="w-full max-w-sm p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg"
+                                    placeholder="Escribe tu respuesta aquí..."
+                                    value={guess}
+                                    onChange={(e) => setGuess(e.target.value)}
+                                />
+                                <button
+                                    onClick={checkGuess}
+                                    className="mt-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-75"
+                                >
+                                    Verificar Respuesta
+                                </button>
+                                {feedback && (
+                                    <p className={`mt-4 text-lg font-semibold ${feedback.includes('Correcto') ? 'text-green-600' : 'text-red-600'}`}>
+                                        {feedback}
+                                    </p>
+                                )}
+                                <button
+                                    onClick={resetApp}
+                                    className="mt-6 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-5 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-75"
+                                >
+                                    Reiniciar
+                                </button>
+                            </div>
+                        )}
+                    </section>
+                </div>
+            );
+        };
+
+        // Render the App component into the root div
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
